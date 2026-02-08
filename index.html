@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Improved To-Do App</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #e5e7eb;
+  padding: 40px;
+}
+
+.container {
+  background: #ffffff;
+  padding: 25px;
+  max-width: 420px;
+  margin: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+}
+
+h2 {
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0;
+}
+
+button {
+  padding: 6px 10px;
+  margin-left: 4px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.add-btn {
+  width: 100%;
+  background: #2563eb;
+  color: white;
+  margin-top: 10px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.task-text {
+  flex: 1;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.task-time {
+  font-size: 12px;
+  color: #475569;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>📝 To-Do List</h2>
+  <input type="text" id="task" placeholder="Enter task">
+  <input type="datetime-local" id="time">
+  <button class="add-btn" onclick="addTask()">Add Task</button>
+  <ul id="list"></ul>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  tasks.forEach((t, index) => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <div class="task-text ${t.done ? 'completed' : ''}">
+        ${t.text}
+        <div class="task-time">${t.time || ""}</div>
+      </div>
+      <div>
+        <button onclick="toggleDone(${index})">✔</button>
+        <button onclick="editTask(${index})">✎</button>
+        <button onclick="deleteTask(${index})">✖</button>
+      </div>
+    `;
+
+    list.appendChild(li);
+  });
+}
+
+function addTask() {
+  const text = document.getElementById("task").value.trim();
+  const time = document.getElementById("time").value;
+
+  if (!text) {
+    alert("Task cannot be empty");
+    return;
+  }
+
+  tasks.push({ text, time, done: false });
+  saveTasks();
+  renderTasks();
+
+  document.getElementById("task").value = "";
+  document.getElementById("time").value = "";
+}
+
+function toggleDone(index) {
+  tasks[index].done = !tasks[index].done;
+  saveTasks();
+  renderTasks();
+}
+
+function editTask(index) {
+  const newText = prompt("Edit task", tasks[index].text);
+  if (newText !== null && newText.trim() !== "") {
+    tasks[index].text = newText.trim();
+    saveTasks();
+    renderTasks();
+  }
+}
+
+function deleteTask(index) {
+  if (confirm("Delete this task?")) {
+    tasks.splice(index, 1);
+    saveTasks();
+    renderTasks();
+  }
+}
+
+renderTasks();
+</script>
+
+</body>
+</html>
+
